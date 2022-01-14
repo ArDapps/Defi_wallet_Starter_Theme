@@ -19,17 +19,29 @@ import './App.css';
 export default function App() {
 
   const [ centredModal, setCentredModal ] = useState(false);
+
   const [ accounts, setAccounts ] = useState("");
-  // const [ contract, setContract ] = useState(null);
-  const [ address, setAddress ] = useState("");
+
   const [ walletType, setWalletType ] = useState("");
-  const [ web3Ins, setWeb3Ins ] = useState("")
+
+  //Model
+  // const [ web3Api, setWe3Api.web3 ] = useState("")
+  const [provider,setProvider] = useState(null);
+  const [ address, setAddress ] = useState("");
+  //End Model
   const [balance, setBalance] = useState(0);
+
+  const[web3Api,setWe3Api] = useState({
+    provider:null,
+    web3:null,
+    account:null,
+    isLoading:false
+})
 
   useEffect(() => {
     detectEthereumProvider().then((provider) => {
       if(provider) {
-        setContract(provider);
+        setProvider(provider);
         window.ethereum.request({
           method: 'eth_accounts'
         }).then((accounts) => {
@@ -49,22 +61,22 @@ export default function App() {
   useEffect(() => {
     if ( window.ethereum ) {
       window.ethereum.on('accountsChanged', async function (accounts) {
-        if ( web3Ins ) {
+        if ( web3Api ) {
           console.log("load");
           setAccounts(accounts[0]);   
           setAddress(accounts[0]);
-          let amount = await web3Ins.eth.getBalance(accounts[0]);
+          let amount = await web3Api.eth.getBalance(accounts[0]);
           setBalance(amount);
         }
       });
     }
-  }, [web3Ins])
+  }, [web3Api])
 
   const connectMetamask = async () => {
     const currentProvider = await detectEthereumProvider();
       if (currentProvider) {
-          // let web3InstanceCopy = new Web3(currentProvider);
-          // setWeb3Instance(web3InstanceCopy);
+          // let web3ApitanceCopy = new Web3(currentProvider);
+          // setWe3Api.web3tance(web3Api.web3tanceCopy);
           if (!window.ethereum.selectedAddress) {
             await window.ethereum.request({ method: 'eth_requestAccounts' });
           }
@@ -76,7 +88,10 @@ export default function App() {
           const web3 = new Web3(currentProvider);
           let amount = await web3.eth.getBalance(currentAddress);
           amount = web3.utils.fromWei(web3.utils.toBN(amount), "ether");
-          setWeb3Ins(web3);
+          // setWe3Api.web3(web3);
+          setWe3Api({
+            web3:Web3,
+        })
           setBalance(amount);
           setWalletType("MetaMask");
       } else {
@@ -101,7 +116,13 @@ export default function App() {
     let amount = await web3.eth.getBalance(address);
     console.log(amount);
     amount = web3.utils.fromWei(web3.utils.toBN(amount), "ether");
-    setWeb3Ins(web3);
+
+    // setWe3Api.web3(web3);
+    setWe3Api({
+      web3:web3,
+  })
+  // setWe3Api(api=>({...api,web3:web3}))
+
     setBalance(amount);
     setWalletType("Defi Wallet");
   }
@@ -115,7 +136,6 @@ export default function App() {
   //Load the contract and Function
 
 //Load The Contract Content
-const [contract,setContract] = useState(null);
 const [brandName,setBrandName] =useState([]);
 useEffect(() => {
 const loadContract = async ()=>{
@@ -128,15 +148,14 @@ const loadContract = async ()=>{
  console.log(convertContractFileToJson,"contract Convert File")
 
  const abi = await convertContractFileToJson.abi;
- const networkId =  await web3Ins.eth.net.getId();
+ const networkId =  await web3Api.web3.eth.net.getId();
 
  const networkObject = convertContractFileToJson.networks[networkId]
 
  if(networkObject){
   const address  = await networkObject.address;
   console.log(address);
-  const deployedContract = await  new web3Ins.eth.Contract(abi,address); 
-  setContract(deployedContract);
+  const deployedContract = await  new web3Api.web3.eth.Contract(abi,address); 
 
   console.log(deployedContract);
 
@@ -150,8 +169,8 @@ const loadContract = async ()=>{
  }
   
 }
-web3Ins &&loadContract();
-}, [web3Ins])
+web3Api.web3 &&loadContract();
+}, [web3Api.web3])
 
   const toggleShow = () => setCentredModal(!centredModal);
 
