@@ -20,34 +20,34 @@ export default function App() {
 
   const [ centredModal, setCentredModal ] = useState(false);
 
-  const [ accounts, setAccounts ] = useState("");
+  // const [ accounts, setAccounts ] = useState("");
 
   const [ walletType, setWalletType ] = useState("");
 
   //Model
   // const [ web3Api, setWe3Api.web3 ] = useState("")
-  const [provider,setProvider] = useState(null);
-  const [ address, setAddress ] = useState("");
+  // const [provider,setProvider] = useState(null);
+  // const [ address, setAddress ] = useState("");
   //End Model
   const [balance, setBalance] = useState(0);
 
   const[web3Api,setWe3Api] = useState({
     provider:null,
     web3:null,
-    account:null,
+    account:"",
     isLoading:false
 })
 
   useEffect(() => {
     detectEthereumProvider().then((provider) => {
       if(provider) {
-        setProvider(provider);
+        setWe3Api({provider:provider});
         window.ethereum.request({
           method: 'eth_accounts'
         }).then((accounts) => {
           const addr = (accounts.length <= 0) ? '' : accounts[0];
           if (accounts.length > 0) {
-            setAddress(addr);
+            setWe3Api({account:addr});
           }
         }).catch((err) => {
           console.log(err);
@@ -61,16 +61,18 @@ export default function App() {
   useEffect(() => {
     if ( window.ethereum ) {
       window.ethereum.on('accountsChanged', async function (accounts) {
-        if ( web3Api ) {
+        if ( web3Api.web3 ) {
           console.log("load");
-          setAccounts(accounts[0]);   
-          setAddress(accounts[0]);
-          let amount = await web3Api.eth.getBalance(accounts[0]);
+          // setAccounts(accounts[0]);   
+          // setAddress(accounts[0]);
+          setWe3Api({account:accounts[0]});
+
+          let amount = await web3Api.web3.eth.getBalance(accounts[0]);
           setBalance(amount);
         }
       });
     }
-  }, [web3Api])
+  }, [web3Api.web3])
 
   const connectMetamask = async () => {
     const currentProvider = await detectEthereumProvider();
@@ -83,14 +85,17 @@ export default function App() {
           await window.ethereum.enable();
           let currentAddress = window.ethereum.selectedAddress;
           console.log(currentAddress);
-          setAccounts(currentAddress);   
-          setAddress(currentAddress);
+          // setAccounts(currentAddress);   
+          // setAddress(currentAddress);
+          // setWe3Api({account:currentAddress});
+
           const web3 = new Web3(currentProvider);
           let amount = await web3.eth.getBalance(currentAddress);
           amount = web3.utils.fromWei(web3.utils.toBN(amount), "ether");
           // setWe3Api.web3(web3);
           setWe3Api({
-            web3:Web3,
+            web3:web3,
+            account:currentAddress
         })
           setBalance(amount);
           setWalletType("MetaMask");
@@ -112,7 +117,7 @@ export default function App() {
     const provider = await connector.getProvider();
     const web3 = new Web3(provider);
     const address = (await web3.eth.getAccounts())[0];
-    setAddress(address);
+    // setAddress(address);
     let amount = await web3.eth.getBalance(address);
     console.log(amount);
     amount = web3.utils.fromWei(web3.utils.toBN(amount), "ether");
@@ -120,6 +125,7 @@ export default function App() {
     // setWe3Api.web3(web3);
     setWe3Api({
       web3:web3,
+      account:address
   })
   // setWe3Api(api=>({...api,web3:web3}))
 
@@ -128,8 +134,12 @@ export default function App() {
   }
 
   const disconnect = async () => {
-      setAccounts('');
-      setAddress('');
+      // setAccounts('');
+      // setAddress('');
+      setWe3Api({
+      
+        account:""
+    })
   }
 
 
@@ -192,10 +202,10 @@ web3Api.web3 &&loadContract();
                     Connect Wallet
                 </button><br/><br/>
                 {
-                    address && 
+                    web3Api.account && 
                     <>
                     <h3>DATA: {brandName}</h3>
-                        <h3>Address: {address}</h3>
+                        <h3>Address: {web3Api.account}</h3>
 
                         <h3>BalanceOF: {balance}ETH</h3>
                     </>
@@ -212,7 +222,7 @@ web3Api.web3 &&loadContract();
                 <MDBBtn className='btn-close' color='none' onClick={toggleShow}></MDBBtn>
                 </MDBModalHeader>
                 {
-                    !address ?
+                    !web3Api.account ?
                     <MDBModalBody>
                         <div className="row">
                             <div className="col-sm-6 mb-4">
@@ -231,7 +241,7 @@ web3Api.web3 &&loadContract();
                     </MDBModalBody> :
                     <div>
                         <MDBModalBody>
-                            <h5>You are currently connected to <strong>{address}</strong> via <strong>{walletType}</strong></h5>
+                            <h5>You are currently connected to <strong>{web3Api.account}</strong> via <strong>{walletType}</strong></h5>
                         </MDBModalBody>
                         <MDBModalFooter>
                         <MDBBtn color='secondary' onClick={toggleShow}>
