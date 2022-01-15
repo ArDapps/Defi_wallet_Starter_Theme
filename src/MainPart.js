@@ -14,65 +14,17 @@ import Torus from "@toruslabs/torus-embed";
 import { DeFiWeb3Connector } from 'deficonnect'
 import Web3 from "web3";
 import './App.css';
+import { useWeb3 } from './web3'
+
 
 
 const MainPart = ()=> {
 
   const [ centredModal, setCentredModal ] = useState(false);
 
-  // const [ accounts, setAccounts ] = useState("");
-
-  const [ walletType, setWalletType ] = useState("");
-
-  //Model
-  // const [ web3Api, setWe3Api.web3 ] = useState("")
-  // const [provider,setProvider] = useState(null);
-  // const [ address, setAddress ] = useState("");
-  //End Model
-  const [balance, setBalance] = useState(0);
-
-  const[web3Api,setWe3Api] = useState({
-    provider:null,
-    web3:null,
-    account:"",
-    isLoading:false
-})
-
-  useEffect(() => {
-    detectEthereumProvider().then((provider) => {
-      if(provider) {
-        setWe3Api({provider:provider});
-        window.ethereum.request({
-          method: 'eth_accounts'
-        }).then((accounts) => {
-          const addr = (accounts.length <= 0) ? '' : accounts[0];
-          if (accounts.length > 0) {
-            setWe3Api({account:addr});
-          }
-        }).catch((err) => {
-          console.log(err);
-        });
-      }    
-    }).catch ((err) => {
-      console.log(err);
-    });
-  }, [])
-
-  useEffect(() => {
-    if ( window.ethereum ) {
-      window.ethereum.on('accountsChanged', async function (accounts) {
-        if ( web3Api.web3 ) {
-          console.log("load");
-          // setAccounts(accounts[0]);   
-          // setAddress(accounts[0]);
-          setWe3Api({account:accounts[0]});
-
-          let amount = await web3Api.web3.eth.getBalance(accounts[0]);
-          setBalance(amount);
-        }
-      });
-    }
-  }, [web3Api.web3])
+  const web3Api = useWeb3();
+  console.log("From index",web3Api)
+   const web33 =web3Api.web3;
 
   const connectMetamask = async () => {
     const currentProvider = await detectEthereumProvider();
@@ -93,12 +45,12 @@ const MainPart = ()=> {
           let amount = await web3.eth.getBalance(currentAddress);
           amount = web3.utils.fromWei(web3.utils.toBN(amount), "ether");
           // setWe3Api.web3(web3);
-          setWe3Api({
+          web3Api.setWe3Api({
             web3:web3,
             account:currentAddress
         })
-          setBalance(amount);
-          setWalletType("MetaMask");
+        web3Api.setBalance(amount);
+        web3Api.setWalletType("MetaMask");
       } else {
           console.log('Please install MetaMask!');
       }
@@ -122,26 +74,25 @@ const MainPart = ()=> {
     console.log(amount);
     amount = web3.utils.fromWei(web3.utils.toBN(amount), "ether");
 
-    // setWe3Api.web3(web3);
-    setWe3Api({
-      web3:web3,
-      account:address
-  })
-  // setWe3Api(api=>({...api,web3:web3}))
+    web3Api({web3:Web3,account:address});
+    // web3Api.account(address);
 
-    setBalance(amount);
-    setWalletType("Defi Wallet");
+  //   web3Api.setWe3Api({
+  //     web3:web3,
+  //     account:address
+  // })
+  // web3Api.setWe3Api(api=>({...api,web3:web3,account:address}))
+
+  web3Api.setBalance(amount);
+  web3Api.setWalletType("Defi Wallet");
   }
 
   const disconnect = async () => {
       // setAccounts('');
       // setAddress('');
-      setWe3Api({
-      
-        account:""
-    })
+      web3Api.setWe3Api.account = ""
   }
-
+ 
 
   //Load the contract and Function
 
@@ -207,7 +158,7 @@ web3Api.web3 &&loadContract();
                     <h3>DATA: {brandName}</h3>
                         <h3>Address: {web3Api.account}</h3>
 
-                        <h3>BalanceOF: {balance}ETH</h3>
+                        <h3>BalanceOF: {web3Api.balance}ETH</h3>
                     </>
                 }
                 </div>
@@ -241,7 +192,7 @@ web3Api.web3 &&loadContract();
                     </MDBModalBody> :
                     <div>
                         <MDBModalBody>
-                            <h5>You are currently connected to <strong>{web3Api.account}</strong> via <strong>{walletType}</strong></h5>
+                            <h5>You are currently connected to <strong>{web3Api.account}</strong> via <strong>{web3Api.walletType}</strong></h5>
                         </MDBModalBody>
                         <MDBModalFooter>
                         <MDBBtn color='secondary' onClick={toggleShow}>

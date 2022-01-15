@@ -17,20 +17,17 @@ import './App.css';
 import MainPart from './MainPart';
 import Web3Provider from './web3';
 
-
-export default function App() {
+const App = ()=> {
 
 
 
   return (
-    <Web3Provider>
-          <div className='App'>
-            <>
-            
-            <MainPart/>
-            </>
-            
-          </div>
-    </Web3Provider>
+        <div className='App'>
+          <Web3Provider>
+             <MainPart/>
+          </Web3Provider>
+          
+        </div>
   );
 }
+export default App;
