@@ -64,6 +64,7 @@ export default function Web3Provider({children}){
         });
       }
     }, [web3Api.web3])
+    ////////////////////=<<<<<<<<<<<<<<<<<<<<<<<<<<>>>>>>>>>>>>>>>
   
     const connectMetamask = async () => {
       const currentProvider = await detectEthereumProvider();
@@ -95,7 +96,7 @@ export default function Web3Provider({children}){
         }
   
     }
-  
+  ////////////////////=<<<<<<<<<<<<<<<<<<<<<<<<<<>>>>>>>>>>>>>>>
     const connectDefi = async () => {
       const connector = new DeFiWeb3Connector({
         supportedChainIds: [1,338],
@@ -133,7 +134,7 @@ export default function Web3Provider({children}){
       })
     }
 
- 
+ ////////////////////=<<<<<<<<<<<<<<<<<<<<<<<<<<>>>>>>>>>>>>>>>
 
     const _web3Api =useMemo(() =>{
         return{
