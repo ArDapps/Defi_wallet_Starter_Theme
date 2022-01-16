@@ -9680,8 +9680,6 @@
     "which" "^1.3.0"
 
 "node-pre-gyp@^0.12.0":
-  "integrity" "sha512-4KghwV8vH5k+g2ylT+sLTjy5wmUOb9vPhnM8NHvRf9dHmnW/CndrFXy2aRPaPST6dugXSdHXfeaHQm77PIz/1A=="
-  "resolved" "https://registry.npmjs.org/node-pre-gyp/-/node-pre-gyp-0.12.0.tgz"
   "version" "0.12.0"
   dependencies:
     "detect-libc" "^1.0.2"

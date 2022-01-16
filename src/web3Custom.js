@@ -1,18 +1,9 @@
-import Web3 from "web3"
-import detectEthereumProvider from '@metamask/detect-provider'
+import React, { useState, useEffect } from 'react';
+import detectEthereumProvider from "@metamask/detect-provider";
 import { DeFiWeb3Connector } from 'deficonnect'
-import React from "react";
+import Web3 from "web3";
 
-const {createContext,useContext,useState,useEffect,useMemo} = require("react");
-const Web3Context = createContext(null);
-
-
-
-
-
-
-export default function Web3Provider({children}){
-
+const  web3Custom = ()=>{
     const[web3Api,setWe3Api] = useState({
         provider:null,
         web3:null,
@@ -64,7 +55,6 @@ export default function Web3Provider({children}){
         });
       }
     }, [web3Api.web3])
-    ////////////////////=<<<<<<<<<<<<<<<<<<<<<<<<<<>>>>>>>>>>>>>>>
   
     const connectMetamask = async () => {
       const currentProvider = await detectEthereumProvider();
@@ -96,7 +86,7 @@ export default function Web3Provider({children}){
         }
   
     }
-  ////////////////////=<<<<<<<<<<<<<<<<<<<<<<<<<<>>>>>>>>>>>>>>>
+  
     const connectDefi = async () => {
       const connector = new DeFiWeb3Connector({
         supportedChainIds: [1,338],
@@ -134,66 +124,10 @@ export default function Web3Provider({children}){
       })
     }
 
- ////////////////////=<<<<<<<<<<<<<<<<<<<<<<<<<<>>>>>>>>>>>>>>>
-
-    const _web3Api =useMemo(() =>{
-        return{
-            ...web3Api,
-            // metaMaskConnect:web3Api.provider? async()=>{
-
-        
-            //     try{
-                    
-            //         await web3Api.provider.request({methods:"eth_requestAccounts"})
-
-            //     }catch(e){
-            //     console.log("iam in error from metaMaskConnect")
-                    
-            //         window.reload()
-            //     }
-
-            // }:()=>{
-            //     console.error("Cannot connect with meta mask, try to reload your browser")
-            // },
-        }
-    },[web3Api])
-        //Create LoadAccounts Function
-
-       
-        useEffect(()=>{
-            
-             const loadAccount = async()=>{
-
-
-     try{
-        console.log("web3Api",web3Api)
-
-        const accounts = await web3Api.web3.eth.getAccounts();
-        const address = (await web3Api.web3.eth.getAccounts())[0];
-
-        console.log("loadAccount" ,address)
-        setWe3Api(api=>({...api,account:address}))
-
-     }catch(e){
-         console.log(e)
-
-     }
-
-    
-             }
-    
-           web3Api.web3&& loadAccount();
-        },[ web3Api.web3])
-
-
-    return(
-        <Web3Context.Provider value={_web3Api}>
-            {children}
-        </Web3Context.Provider>
-    )
-
+    return{
+        web3Api,connectDefi,connectMetamask,disconnect
+    }
 
 }
-export function useWeb3(){
-    return useContext(Web3Context)
-}
+
+export default web3Custom;

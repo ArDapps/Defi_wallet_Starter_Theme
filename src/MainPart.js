@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect,useContext } from 'react';
 import {
   MDBBtn,
   MDBModal,
@@ -10,94 +10,33 @@ import {
   MDBModalFooter } from 'mdb-react-ui-kit';
 import 'mdb-react-ui-kit/dist/css/mdb.min.css';
 import detectEthereumProvider from "@metamask/detect-provider";
-import Torus from "@toruslabs/torus-embed";
 import { DeFiWeb3Connector } from 'deficonnect'
 import Web3 from "web3";
 import './App.css';
 import { useWeb3 } from './web3'
+import WebContext from './store/web3Context'
 
 
 
 const MainPart = ()=> {
-
+const ctx=useContext(WebContext)
   const [ centredModal, setCentredModal ] = useState(false);
 
-  const web3Api = useWeb3();
-  console.log("From index",web3Api)
-   const web33 =web3Api.web3;
+//   const web3Api = useWeb3();
+//   console.log("From index",web3Api)
+//    const web33 =web3Api.web3;
+const [ walletType, setWalletType ] = useState("");
 
-  const connectMetamask = async () => {
-    const currentProvider = await detectEthereumProvider();
-      if (currentProvider) {
-          // let web3ApitanceCopy = new Web3(currentProvider);
-          // setWe3Api.web3tance(web3Api.web3tanceCopy);
-          if (!window.ethereum.selectedAddress) {
-            await window.ethereum.request({ method: 'eth_requestAccounts' });
-          }
-          await window.ethereum.enable();
-          let currentAddress = window.ethereum.selectedAddress;
-          console.log(currentAddress);
-          // setAccounts(currentAddress);   
-          // setAddress(currentAddress);
-          // setWe3Api({account:currentAddress});
+const [balance, setBalance] = useState(0);
 
-          const web3 = new Web3(currentProvider);
-          let amount = await web3.eth.getBalance(currentAddress);
-          amount = web3.utils.fromWei(web3.utils.toBN(amount), "ether");
-          // setWe3Api.web3(web3);
-          web3Api.setWe3Api({
-            web3:web3,
-            account:currentAddress
-        })
-        web3Api.setBalance(amount);
-        web3Api.setWalletType("MetaMask");
-      } else {
-          console.log('Please install MetaMask!');
-      }
 
-  }
-
-  const connectDefi = async () => {
-    const connector = new DeFiWeb3Connector({
-      supportedChainIds: [1,338],
-      rpc: {1: 'https://mainnet.infura.io/v3/17e978710e44440cadf40a13e0ebeaff',
-      338:"https://cronos-testnet-3.crypto.org:8545",
-    },
-      pollingInterval: 15000,
-    })
-    await connector.activate();
-    const provider = await connector.getProvider();
-    const web3 = new Web3(provider);
-    const address = (await web3.eth.getAccounts())[0];
-    // setAddress(address);
-    let amount = await web3.eth.getBalance(address);
-    console.log(amount);
-    amount = web3.utils.fromWei(web3.utils.toBN(amount), "ether");
-
-    web3Api({web3:Web3,account:address});
-    // web3Api.account(address);
-
-  //   web3Api.setWe3Api({
-  //     web3:web3,
-  //     account:address
-  // })
-  // web3Api.setWe3Api(api=>({...api,web3:web3,account:address}))
-
-  web3Api.setBalance(amount);
-  web3Api.setWalletType("Defi Wallet");
-  }
-
-  const disconnect = async () => {
-      // setAccounts('');
-      // setAddress('');
-      web3Api.setWe3Api.account = ""
-  }
- 
 
   //Load the contract and Function
 
 //Load The Contract Content
 const [brandName,setBrandName] =useState([]);
+
+
 useEffect(() => {
 const loadContract = async ()=>{
  const contractFile = await fetch('/abis/BrandName.json');
@@ -109,14 +48,14 @@ const loadContract = async ()=>{
  console.log(convertContractFileToJson,"contract Convert File")
 
  const abi = await convertContractFileToJson.abi;
- const networkId =  await web3Api.web3.eth.net.getId();
+ const networkId =  await ctx.web3.eth.net.getId();
 
  const networkObject = convertContractFileToJson.networks[networkId]
 
  if(networkObject){
   const address  = await networkObject.address;
   console.log(address);
-  const deployedContract = await  new web3Api.web3.eth.Contract(abi,address); 
+  const deployedContract = await  new ctx.web3.eth.Contract(abi,address); 
 
   console.log(deployedContract);
 
@@ -130,9 +69,10 @@ const loadContract = async ()=>{
  }
   
 }
-web3Api.web3 &&loadContract();
-}, [web3Api.web3])
+ctx.web3 &&loadContract();
+}, [ctx.web3])
 
+  
   const toggleShow = () => setCentredModal(!centredModal);
 
 
@@ -153,12 +93,12 @@ web3Api.web3 &&loadContract();
                     Connect Wallet
                 </button><br/><br/>
                 {
-                    web3Api.account && 
+                    ctx.account && 
                     <>
                     <h3>DATA: {brandName}</h3>
-                        <h3>Address: {web3Api.account}</h3>
+                        <h3>Address: {ctx.account}</h3>
 
-                        <h3>BalanceOF: {web3Api.balance}ETH</h3>
+                        <h3>BalanceOF: {ctx.balance}ETH</h3>
                     </>
                 }
                 </div>
@@ -173,12 +113,12 @@ web3Api.web3 &&loadContract();
                 <MDBBtn className='btn-close' color='none' onClick={toggleShow}></MDBBtn>
                 </MDBModalHeader>
                 {
-                    !web3Api.account ?
+                    !ctx.account ?
                     <MDBModalBody>
                         <div className="row">
                             <div className="col-sm-6 mb-4">
                             <img className="walleticon" src="icon/metamask.png"/>
-                            <button type="button" className="btn btn-outline-primary" data-mdb-ripple-color="dark" onClick={connectMetamask}>MetaMask</button>
+                            <button type="button" className="btn btn-outline-primary" data-mdb-ripple-color="dark" onClick={ctx.connectMetamask}>MetaMask</button>
                             </div>
                       
                         </div>
@@ -186,19 +126,19 @@ web3Api.web3 &&loadContract();
                         <div className="row">
                             <div className="col-sm-6 mb-4">
                             <img className="walleticon" src="icon/defi.png"/>
-                            <button type="button" className="btn btn-outline-primary" data-mdb-ripple-color="dark" onClick={connectDefi}>Defiwallet</button>
+                            <button type="button" className="btn btn-outline-primary" data-mdb-ripple-color="dark" onClick={ctx.connectDefi}>Defiwallet</button>
                             </div>
                         </div>
                     </MDBModalBody> :
                     <div>
                         <MDBModalBody>
-                            <h5>You are currently connected to <strong>{web3Api.account}</strong> via <strong>{web3Api.walletType}</strong></h5>
+                            <h5>You are currently connected to <strong>{ctx.account}</strong> via <strong>{walletType}</strong></h5>
                         </MDBModalBody>
                         <MDBModalFooter>
                         <MDBBtn color='secondary' onClick={toggleShow}>
                             Close
                         </MDBBtn>
-                        <MDBBtn onClick={disconnect}>Disconnect</MDBBtn>
+                        <MDBBtn onClick={console.log("Disconnect")}>Disconnect</MDBBtn>
                         </MDBModalFooter>
                     </div>
                 }
