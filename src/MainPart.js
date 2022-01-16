@@ -10,7 +10,6 @@ import {
   MDBModalFooter } from 'mdb-react-ui-kit';
 import 'mdb-react-ui-kit/dist/css/mdb.min.css';
 import detectEthereumProvider from "@metamask/detect-provider";
-import Torus from "@toruslabs/torus-embed";
 import { DeFiWeb3Connector } from 'deficonnect'
 import Web3 from "web3";
 import './App.css';
